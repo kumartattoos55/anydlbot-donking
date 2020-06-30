@@ -155,73 +155,77 @@ async def echo(bot, update):
         # logger.info(response_json)
         inline_keyboard = []
         duration = None
-        if "duration" in response_json:
-            duration = response_json["duration"]
-        if "formats" in response_json:
-            for formats in response_json["formats"]:
-                format_id = formats.get("format_id")
-                format_string = formats.get("format_note")
-                if format_string is None:
-                    format_string = formats.get("format")
-                format_ext = formats.get("ext")
-                approx_file_size = ""
-                if "filesize" in formats:
-                    approx_file_size = humanbytes(formats["filesize"])
+            if "duration" in current_r_json:
+                duration = current_r_json["duration"]
+            if "formats" in current_r_json:
+                for formats in current_r_json["formats"]:
+                    format_id = formats.get("format_id")
+                    format_string = formats.get("format_note")
+                    if format_string is None:
+                        format_string = formats.get("format")
+                    # don't display formats, without audio
+                    # https://t.me/c/1434259219/269937
+                    if "DASH" in format_string.upper():
+                        continue
+                    format_ext = formats.get("ext")
+                    approx_file_size = ""
+                    if "filesize" in formats:
+                        approx_file_size = humanbytes(formats["filesize"])
+                    dipslay_str_uon = " " + format_string + " (" + format_ext.upper() + ") " + approx_file_size + " "
+                    cb_string_video = "{}|{}|{}".format(
+                        "video", format_id, format_ext)
+                    ikeyboard = []
+                    if "drive.google.com" in url:
+                        if format_id == "source":
+                            ikeyboard = [
+                                pyrogram.InlineKeyboardButton(
+                                    dipslay_str_uon,
+                                    callback_data=(cb_string_video).encode("UTF-8")
+                                )
+                            ]
+                    else:
+                        if format_string is not None and not "audio only" in format_string:
+                            ikeyboard = [
+                                pyrogram.InlineKeyboardButton(
+                                    dipslay_str_uon,
+                                    callback_data=(cb_string_video).encode("UTF-8")
+                                )
+                            ]
+                        else:
+                            # special weird case :\
+                            ikeyboard = [
+                                pyrogram.InlineKeyboardButton(
+                                    "SVideo [" +
+                                    "] ( " +
+                                    approx_file_size + " )",
+                                    callback_data=(cb_string_video).encode("UTF-8")
+                                )
+                            ]
+                    inline_keyboard.append(ikeyboard)
+                if duration is not None:
+                    cb_string_64 = "{}|{}|{}".format("audio", "64k", "mp3")
+                    cb_string_128 = "{}|{}|{}".format("audio", "128k", "mp3")
+                    cb_string = "{}|{}|{}".format("audio", "320k", "mp3")
+                    inline_keyboard.append([
+                        pyrogram.InlineKeyboardButton(
+                            "MP3 " + "(" + "64 kbps" + ")", callback_data=cb_string_64.encode("UTF-8")),
+                        pyrogram.InlineKeyboardButton(
+                            "MP3 " + "(" + "128 kbps" + ")", callback_data=cb_string_128.encode("UTF-8"))
+                    ])
+                    inline_keyboard.append([
+                        pyrogram.InlineKeyboardButton(
+                            "MP3 " + "(" + "320 kbps" + ")", callback_data=cb_string.encode("UTF-8"))
+                    ])
+            else:
+                format_id = current_r_json["format_id"]
+                format_ext = current_r_json["ext"]
                 cb_string_video = "{}|{}|{}".format(
                     "video", format_id, format_ext)
-                cb_string_file = "{}|{}|{}".format(
-                    "file", format_id, format_ext)
-                if format_string is not None and not "audio only" in format_string:
-                    ikeyboard = [
-                        InlineKeyboardButton(
-                            "S " + format_string + " video " + approx_file_size + " ",
-                            callback_data=(cb_string_video).encode("UTF-8")
-                        ),
-                        InlineKeyboardButton(
-                            "D " + format_ext + " " + approx_file_size + " ",
-                            callback_data=(cb_string_file).encode("UTF-8")
-                        )
-                    ]
-                    """if duration is not None:
-                        cb_string_video_message = "{}|{}|{}".format(
-                            "vm", format_id, format_ext)
-                        ikeyboard.append(
-                            pyrogram.InlineKeyboardButton(
-                                "VM",
-                                callback_data=(
-                                    cb_string_video_message).encode("UTF-8")
-                            )
-                        )"""
-                else:
-                    # special weird case :\
-                    ikeyboard = [
-                        InlineKeyboardButton(
-                            "SVideo [" +
-                            "] ( " +
-                            approx_file_size + " )",
-                            callback_data=(cb_string_video).encode("UTF-8")
-                        ),
-                        InlineKeyboardButton(
-                            "DFile [" +
-                            "] ( " +
-                            approx_file_size + " )",
-                            callback_data=(cb_string_file).encode("UTF-8")
-                        )
-                    ]
-                inline_keyboard.append(ikeyboard)
-            if duration is not None:
-                cb_string_64 = "{}|{}|{}".format("audio", "64k", "mp3")
-                cb_string_128 = "{}|{}|{}".format("audio", "128k", "mp3")
-                cb_string = "{}|{}|{}".format("audio", "320k", "mp3")
                 inline_keyboard.append([
-                    InlineKeyboardButton(
-                        "MP3 " + "(" + "64 kbps" + ")", callback_data=cb_string_64.encode("UTF-8")),
-                    InlineKeyboardButton(
-                        "MP3 " + "(" + "128 kbps" + ")", callback_data=cb_string_128.encode("UTF-8"))
-                ])
-                inline_keyboard.append([
-                    InlineKeyboardButton(
-                        "MP3 " + "(" + "320 kbps" + ")", callback_data=cb_string.encode("UTF-8"))
+                    pyrogram.InlineKeyboardButton(
+                        "SVideo",
+                        callback_data=(cb_string_video).encode("UTF-8")
+                    )
                 ])
         reply_markup = InlineKeyboardMarkup(inline_keyboard)
         # logger.info(reply_markup)
