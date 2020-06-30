@@ -250,21 +250,6 @@ async def echo(bot, update):
         )
     else:
         # fallback for nonnumeric port a.k.a seedbox.io
-        inline_keyboard = []
-        cb_string_file = "{}={}={}".format(
-            "file", "LFO", "NONE")
-        cb_string_video = "{}={}={}".format(
-            "video", "OFL", "ENON")
-        inline_keyboard.append([
-            InlineKeyboardButton(
-                "SVideo",
-                callback_data=(cb_string_video).encode("UTF-8")
-            ),
-            InlineKeyboardButton(
-                "DFile",
-                callback_data=(cb_string_file).encode("UTF-8")
-            )
-        ])
         reply_markup = InlineKeyboardMarkup(inline_keyboard)
         await update.reply_photo(
             photo=DEF_THUMB_NAIL_VID_S,
