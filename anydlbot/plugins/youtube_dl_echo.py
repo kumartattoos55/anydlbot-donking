@@ -240,20 +240,6 @@ async def echo(bot, update):
                     callback_data=(cb_string_file).encode("UTF-8")
                 )
             ])
-            cb_string_file = "{}={}={}".format(
-                "file", format_id, format_ext)
-            cb_string_video = "{}={}={}".format(
-                "video", format_id, format_ext)
-            inline_keyboard.append([
-                InlineKeyboardButton(
-                    "video",
-                    callback_data=(cb_string_video).encode("UTF-8")
-                ),
-                InlineKeyboardButton(
-                    "file",
-                    callback_data=(cb_string_file).encode("UTF-8")
-                )
-            ])
         reply_markup = InlineKeyboardMarkup(inline_keyboard)
         # logger.info(reply_markup)
         thumbnail = DEF_THUMB_NAIL_VID_S
